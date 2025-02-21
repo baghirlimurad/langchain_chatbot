@@ -1,0 +1,8 @@
+AI Workshops seriyamızın ilk buraxılışında sizi chatbot texnologiyalarının dərinliklərinə səyahətə dəvət edirik!
+Vector məlumat bazaları və embedding sistemləri
+LLM inteqrasiyası və prompt mühəndisliyi
+Ranking və retrieval sistemləri
+Real-time chatbot arxitekturası
+NLP və NLU sistemlərinin sirlərini açacağıq
+Semantic axtarış və ranking alqoritmlərini araşdıracağıq
+Öz chatbotunuzu sıfırdan yaradacaqsınız!
