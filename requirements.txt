@@ -9,4 +9,4 @@ langchain_openai
 langchain-text-splitters
 unstructured
 pydantic
-
+faiss-cpu

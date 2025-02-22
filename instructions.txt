@@ -6,4 +6,3 @@ Real-time chatbot arxitekturası
 NLP və NLU sistemlərinin sirlərini açacağıq
 Semantic axtarış və ranking alqoritmlərini araşdıracağıq
 Öz chatbotunuzu sıfırdan yaradacaqsınız!
-test

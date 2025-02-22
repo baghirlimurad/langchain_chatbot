@@ -1,19 +1,21 @@
-[{
-    "title": "AI Chatbot Workshop",
-    "duration": "2 hours",
-    "max_participants": 20,
-    "topics": [
-        "What are chatbots and their purposes",
-        "How to start creating a chatbot",
-        "Practical chatbot development"
-    ]
-},
-{
-    "title": "comp science Workshop",
-    "duration": "5 hours",
-    "max_participants": 10,
-    "topics": [
-        "What are comp science subjects and their purposes",
-        "How to start comp science"
-    ]
-}]
+[
+    {
+        "title": "AI Chatbot Workshop",
+        "duration": "2 hours",
+        "max_participants": 20,
+        "topics": [
+            "What are chatbots and their purposes",
+            "How to start creating a chatbot",
+            "Practical chatbot development"
+        ]
+    },
+    {
+        "title": "comp science Workshop",
+        "duration": "5 hours",
+        "max_participants": 10,
+        "topics": [
+            "What are comp science subjects and their purposes",
+            "How to start comp science"
+        ]
+    }
+]
