@@ -11,3 +11,4 @@ langchain-text-splitters
 unstructured
 pydantic
 faiss-cpu
+streamlit
