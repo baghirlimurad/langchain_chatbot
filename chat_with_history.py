@@ -1,11 +1,15 @@
 import os
+import time
+
 import streamlit as st
 from dotenv import load_dotenv
-import time
 
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.retrievers import ContextualCompressionRetriever
+from langchain.retrievers.document_compressors import CrossEncoderReranker
 from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_community.cross_encoders import HuggingFaceCrossEncoder
 from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores import FAISS
 from langchain_core.chat_history import BaseChatMessageHistory
@@ -14,44 +18,21 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from langchain.retrievers import ContextualCompressionRetriever
-from langchain.retrievers.document_compressors import CrossEncoderReranker
-from langchain_community.cross_encoders import HuggingFaceCrossEncoder
-
 # Page configuration
 st.set_page_config(
-    page_title="RAG Muradbot",
+    page_title="AILAB Chatbot",
     page_icon="🤖",
     layout="wide"
 )
 
 # App title and description
-st.title("📚 RAG Muradbot")
-st.markdown("Ask questions about your documents using Retrieval Augmented Generation")
+st.title("AILAB Chatbot 🤖")
+st.markdown("Get answers to your questions about your documents.")
 
 # Sidebar for configuration
 with st.sidebar:
     st.header("Configuration")
-    
-    # File uploader option (as an alternative to the hardcoded data.txt)
-    uploaded_file = st.file_uploader("Upload a document (optional)", type=["txt"])
-    
-    # Model selector
-    model_name = st.selectbox(
-        "Select LLM model",
-        ["gpt-4o", "gpt-3.5-turbo"],
-        index=0
-    )
-    
-    # Temperature slider
-    temperature = st.slider("Temperature", min_value=0.0, max_value=1.0, value=0.0, step=0.1)
-    
-    # Chunk settings
-    chunk_size = st.slider("Chunk Size", min_value=50, max_value=1000, value=100, step=50)
-    chunk_overlap = st.slider("Chunk Overlap", min_value=0, max_value=100, value=20, step=5)
-    
-    # Number of returned documents
-    top_n = st.slider("Top N Documents", min_value=1, max_value=10, value=3, step=1)
+    uploaded_file = st.file_uploader("Upload your document.", type=["txt"])
     
     # Clear chat button
     if st.button("Clear Chat History"):
@@ -68,28 +49,36 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = ChatMessageHistory()
 
 # Check for OpenAI API key
-load_dotenv()
+load_dotenv(override=True)
 openai_api_key = os.getenv("OPENAI_API_KEY")
-
 if not openai_api_key:
-    st.error("OPENAI_API_KEY is not set. Please add it to your .env file or environment variables.")
+    st.error("OPENAI_API_KEY is not set.")
     st.stop()
 
-# Initialize RAG pipeline
 @st.cache_resource
-def initialize_rag_pipeline(model_name, temperature, chunk_size, chunk_overlap, top_n, file_path="data/data.txt"):
+def initialize_rag_pipeline(file_path:str = "data/data.txt") -> RunnableWithMessageHistory:
+    """
+    Initializes the Retrieval-Augmented Generation (RAG) pipeline.
+
+    Args:
+        file_path (str): Path to the text file containing the document data.
+
+    Returns:
+        RunnableWithMessageHistory: A LangChain-based conversational retrieval system.
+    """
+
     try:
         # Load document
         loader = TextLoader(file_path, encoding="utf-8")
         docs = loader.load()
         
         # Initialize LLM
-        generative_llm = ChatOpenAI(model=model_name, temperature=temperature)
+        generative_model = ChatOpenAI(model="gpt-4o", temperature=0)
         
         # Split text
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size, 
-            chunk_overlap=chunk_overlap,
+            chunk_size=100, 
+            chunk_overlap=20,
             separators=["\n"]
         )   
         
@@ -104,8 +93,8 @@ def initialize_rag_pipeline(model_name, temperature, chunk_size, chunk_overlap, 
         retriever = vectorstore.as_retriever()
         
         # Setup reranker
-        model = HuggingFaceCrossEncoder(model_name="cross-encoder/ms-marco-MiniLM-L-2-v2")
-        compressor = CrossEncoderReranker(model=model, top_n=top_n)
+        cross_encoder_model = HuggingFaceCrossEncoder(model_name="cross-encoder/ms-marco-MiniLM-L-2-v2")
+        compressor = CrossEncoderReranker(model=cross_encoder_model, top_n=3)
         compression_retriever = ContextualCompressionRetriever(
             base_compressor=compressor, base_retriever=retriever
         )
@@ -125,7 +114,7 @@ def initialize_rag_pipeline(model_name, temperature, chunk_size, chunk_overlap, 
         )
         
         history_aware_retriever = create_history_aware_retriever(
-            generative_llm, compression_retriever, contextualize_q_prompt
+            generative_model, compression_retriever, contextualize_q_prompt
         )
         
         # QA chain setup
@@ -145,7 +134,7 @@ def initialize_rag_pipeline(model_name, temperature, chunk_size, chunk_overlap, 
             ]
         )
         
-        question_answer_chain = create_stuff_documents_chain(generative_llm, qa_prompt)
+        question_answer_chain = create_stuff_documents_chain(generative_model, qa_prompt)
         rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
         
         # Chat session management function
@@ -180,14 +169,7 @@ if uploaded_file:
     st.sidebar.success(f"File uploaded: {uploaded_file.name}")
 
 # Initialize RAG pipeline
-rag_chain = initialize_rag_pipeline(
-    model_name=model_name, 
-    temperature=temperature,
-    chunk_size=chunk_size,
-    chunk_overlap=chunk_overlap,
-    top_n=top_n,
-    file_path=file_path
-)
+rag_chain = initialize_rag_pipeline(file_path=file_path)
 
 # Display chat messages
 for message in st.session_state.messages:
