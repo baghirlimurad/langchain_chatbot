@@ -6,7 +6,6 @@ python-dotenv
 langchain_community
 langchain_pinecone
 langchain_openai
-langchain_chromadb
 langchain-text-splitters
 unstructured
 pydantic
