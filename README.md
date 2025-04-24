@@ -13,6 +13,6 @@ git clone https://github.com/baghirlimurad/langchain_chatbot.git
 
 ### 2. Install the requirements
 
+```bash
 pip install -r requirements.txt
-
-
+```
