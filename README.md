@@ -9,7 +9,9 @@ A Retrieval-Augmented Generation (RAG) chatbot built using [LangChain](https://g
 
 ```bash
 git clone https://github.com/baghirlimurad/langchain_chatbot.git
-cd langchain_chatbot
+```
+
+### 2. Install the requirements
 
 pip install -r requirements.txt
 
