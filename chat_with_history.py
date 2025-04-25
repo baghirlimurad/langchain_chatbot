@@ -47,7 +47,7 @@ if "messages" not in st.session_state:
 # Initialize chat history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = ChatMessageHistory()
-
+# 
 # Check for OpenAI API key
 load_dotenv(override=True)
 openai_api_key = os.getenv("OPENAI_API_KEY")
