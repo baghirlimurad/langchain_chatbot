@@ -16,3 +16,8 @@ git clone https://github.com/baghirlimurad/langchain_chatbot.git
 ```bash
 pip install -r requirements.txt
 ```
+
+### 3. Use your openai API key
+```bash
+openai.api_key = " "
+```
